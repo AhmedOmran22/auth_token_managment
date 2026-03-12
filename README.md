@@ -1,109 +1,64 @@
-# Auth Token Management in Flutter 🚀
+# Auth Token Management
 
-![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)
+A clean, scalable, and professional Flutter project focused on demonstrating robust token-based authentication flows. This project serves as a reference for developers learning how to handle secure authentication, state management, and seamless application networking in Flutter.
 
-A professional, clean, and scalable Flutter project designed specifically for **developers learning token-based authentication flows in Flutter**. This project serves as an excellent reference and boilerplate, with a heavy focus on **clean architecture, scalability, and developer experience**.
+## Project Overview
 
----
+The primary purpose of this application is to provide a complete, production-ready authentication flow. It showcases how to securely manage user sessions, handle token expiration gracefully in the background, and maintain predictable application state. The architecture prioritizes separation of concerns, making the codebase highly scalable, testable, and easy to maintain.
 
-## 📖 Project Overview
+## Core Features
 
-This app demonstrates a complete authentication flow including login, registration, and secure token handling. A key highlight is the background handling of token expiration via an HTTP interceptor, ensuring users remain authenticated seamlessly using refresh tokens without manual re-login.
+*   **User Authentication:** Complete Login and Registration flows.
+*   **Token Management:** Secure handling and localized storage of both Access Tokens and Refresh Tokens.
+*   **Automatic Token Refresh:** Custom HTTP interceptors that catch `401 Unauthorized` errors and seamlessly refresh tokens without interrupting the user's flow.
+*   **State Management:** Predictable and structured state management using **Cubit** (Bloc pattern).
+*   **Theming & UI:** Polished, clean user experience with native support for both **Light & Dark Mode**.
 
----
-
-## ✨ Features
-
-- **User Authentication:** Secure Login and Registration flows.
-- **Token Management:** Proper handling and secure storage of both Access Tokens and Refresh Tokens.
-- **Automatic Token Refresh (HTTP Interceptor):** Custom HTTP interceptors to silently catch `401 Unauthorized` errors and refresh expired access tokens without interrupting the user experience.
-- **State Management:** Predictable and scalable state management using **Cubit** (Bloc pattern).
-- **Theming & UI:** Polished, responsive UI with seamless support for both **Light & Dark Mode**.
-- **Skeleton Loading:** Premium user experience with shimmer/skeleton loading states during data fetches.
-
----
-
-## 📸 Screenshots / UI Highlights
-
-*(Replace these image placeholders with actual screenshots of your app)*
-
-| Login Screen | Dark Mode | Skeleton Loading |
-| :---: | :---: | :---: |
-| <img src="assets/screenshots/login.png" width="200" alt="Login Screen"/> | <img src="assets/screenshots/dark_mode.png" width="200" alt="Dark Mode"/> | <img src="assets/screenshots/loading.png" width="200" alt="Skeleton Loader"/> |
-
----
-
-## 🚀 Installation / Setup Instructions
-
-Follow these steps to get the project up and running on your local machine.
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/auth_token_managment.git
-   cd auth_token_managment
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Configure Environment Variables (Optional but recommended):**
-   Set up your API base URLs in your configuration or constant files. Ensure your backend server is running and accessible.
-
-4. **Run the app:**
-   ```bash
-   flutter run
-   ```
-
----
-
-## 💡 Usage / How it works
+## How It Works: Developer Perspective
 
 ### The Interceptor & Refresh Token Flow
-This project is built to handle access token expiration gracefully for maximum developer and user experience:
-1. **Initial Login:** When a user logs in, the app receives and securely stores an **Access Token** and a **Refresh Token**.
-2. **Authenticated Requests:** Every subsequent API request includes the Access Token in the `Authorization` header.
-3. **Token Expiration Handling:** If an API request fails with a `401 Unauthorized` status (indicating an expired Access Token), the custom HTTP Interceptor instantly intercepts the error.
-4. **Silent Refresh:** The Interceptor pauses the failed request and automatically sends a background request to the refresh endpoint using the stored Refresh Token.
-5. **Resume Flow:** Upon receiving a new Access Token, the Interceptor updates the local storage, attaches the new token to the paused request, and retries it. **The user experiences zero interruption.** 
-6. **Session Expiry:** If the Refresh Token itself is also expired, the user is cleanly logged out, their states are cleared, and they are redirected to the Login Screen.
 
----
+The core highlight of this project is its resilient network layer. To maximize the user experience and ensure uninterrupted sessions, token expiration is handled automatically:
 
-## 🏗 Architecture & Folder Structure
+1.  **Authentication:** Upon successful initial login or registration, the app securely stores both the `accessToken` and `refreshToken`.
+2.  **Request Decoration:** An HTTP Interceptor automatically injects the `accessToken` into the `Authorization` header of all outgoing secure API requests.
+3.  **Error Handling (401):** If a request fails with a `401 Unauthorized` status (indicating an expired access token), the interceptor catches the error before it propagates to the repository layer.
+4.  **Silent Refresh:** The interceptor temporarily pauses the failed request and initiates a background call to the refresh endpoint using the stored `refreshToken`.
+5.  **Resume Operations:** Once a new `accessToken` is successfully retrieved, the local token storage is updated, and the original queued request is retried with the new token. The end-user is completely unaware of this background process.
+6.  **Session Terminated:** If the refresh token itself is expired or invalid, the interceptor triggers a clean logout process, clearing local states and routing the user back to the authentication screens.
 
-The project follows a clean and modular folder structure to separate concerns and improve maintainability:
+### State Management (Cubit)
+
+The application strictly separates UI components from business logic using **Cubit**. Each feature module (e.g., Auth, User Profile) is governed by its own functional Cubit, consistently emitting strongly-typed states (`Initial`, `Loading`, `Success`, `Failure`). This architecture guarantees predictable UI rendering and highly simplified unit testing.
+
+## Architecture & Folder Structure
+
+The project follows a modular, feature-based architecture pattern to promote clean code and separation of concerns.
 
 ```text
 lib/
- ┣ core/               # App-wide utilities, themes, networking, interceptors, constants
- ┣ data/               # Models, repositories, and local/remote data sources
- ┣ logic/              # Cubits and application state management
- ┣ presentation/       # UI layer: Screens, widgets, and skeleton loaders
- ┗ main.dart           # Entry point of the application
+ ┣ core/               # App-wide configurations, network interceptors, themes, and constants
+ ┣ data/               # Data Transfer Objects (DTOs), models, repositories, and API services
+ ┣ logic/              # Cubits and application state management logic
+ ┣ presentation/       # UI layer: Screens, custom reusable widgets, and dialogs
+ ┗ main.dart           # Application entry point, thematic initialization, and dependency injection
 ```
-*(Note: Please adapt this structure visually if your exact implementation differs slightly)*
 
----
+## Installation & Setup
 
-## 🤝 Contribution Guidelines
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-*Built with ❤️ for Flutter Developers.*
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/auth_token_managment.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd auth_token_managment
+   ```
+3. Install Flutter dependencies:
+   ```bash
+   flutter pub get
+   ```
+4. Run the application:
+   ```bash
+   flutter run
+   ```
